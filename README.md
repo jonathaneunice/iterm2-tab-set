@@ -35,6 +35,10 @@ wildcard search; if you want to search on all
 all possible blues, use a string like `blu` that
 isn't itself an actual color name.
 
+You can see all of the color names with:
+
+    tabset --colors
+
 Special color names also recognized include `random`
 (chooses a CSS color name at random) and
 `RANDOM` (chooses an RGB color *completely*
@@ -57,6 +61,25 @@ Any string can be used. Case *is* significant.
 If you don't like the hashed selection, experiment with
 variations. You might hate `--hash js`, but find
 `--hash JS` or `--hash javascript` to be just right.
+
+Titles and Badges
+-----------------
+
+iTerm2 tabs can also have titles and badges. Titles appear
+in either the tab bar or on the window title. Badges are
+a large-font watermark that appears behind the tab's normal
+content. (Badges require a recent version of iTerm2: Version 3
+or later.)
+
+    tabset --badge "server 1"
+
+Sets the badge watermark to "server 1". The quotes are needed
+to manage the Unix shell argument handling. You can embed newlines
+into badges with `\n`. Unicode characters are also possible.
+
+To set tab titles:
+
+    tabset --title server
 
 Config File
 -----------

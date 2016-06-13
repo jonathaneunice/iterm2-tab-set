@@ -25,6 +25,7 @@ if (_.size(args) == 1) {
   // no real args provided
   println("tabset --color <colorname> | random | RANDOM");
   println("       --color --hash <text>");
+  println("       --colors");
   println("       --badge <text>");
   println("       --title <text>");
   println("       --mode  0 | 1 | 2");
