@@ -10,7 +10,9 @@ var process    = require('process'),
     stringHash = require('string-hash'),
     _          = require('underscore');
 
-var args = minimist(process.argv.slice(2)),
+var argopt = {alias: { a: 'all', b:'badge', c:'color',
+                       h:'hash', t:'title'} },
+    args = minimist(process.argv.slice(2), argopt),
     defaultColorSpec = 'peru',
     colors = baseColorMap();
 
@@ -19,22 +21,23 @@ readConfigFile();
 
 var wrap = linewrap(66);
 
-if ((_.size(args) == 1) || args.help || args.h ) {
-  // no real args provided, or help requested
+if (args.help || ((_.size(args) == 1) && !_.size(args._))) {
+  // help requested, or no real args provided
   println()
   println("To set an iTerm2 tab's color, badge, or title:")
   println()
-  println("tabset --color <named-color>")
+  println("tabset --all|-a <string>")
+  println("       --color <named-color>")
   println("               | <rgb()>")
   println("               | <hex-color>")
   println("               | random")
   println("               | RANDOM")
-  println("       --color --hash <string>");
-  println("       --colors");
+  println("       --hash <string>");
   println("       --badge <string>");
   println("       --title <string>");
   println("       --mode  0 | 1 | 2");
-  println("       --help | -h");
+  println("       --colors");
+  println("       --help");
   println()
 }
 
@@ -42,6 +45,22 @@ if ((_.size(args) == 1) || args.help || args.h ) {
 if (args.colors) {
   var colorNames = _.keys(colors).sort();
   println(wrap("named colors: " + colorNames.join(', ')));
+}
+
+// combo set everthing
+if (_.size(args._) > 0)
+  args.all = args._.join(' ');
+
+if (args.all) {
+  setBadge(args.all);
+  setTabTitle(args.all, args.mode || 1)
+  var col = decodeColorSpec(args.all);
+  if (!col) {
+      var colorNames = _.keys(colors).sort();
+      var index = stringHash(args.all) % colorNames.length;
+      col = colors[colorNames[index]];
+  }
+  setTabColor(col, definedOr(args.mode, 1));
 }
 
 if (args.badge) {
@@ -55,8 +74,11 @@ if (args.title) {
   var title = _.isString(args.title)
               ? args.title
               : path.basename(process.cwd());
-  setTabTitle(title, args.mode || 1)
+  setTabTitle(title, definedOr(args.mode, 1))
 }
+
+if (args.hash && !args.color)
+  args.color = true;
 
 if (args.color) {
   setTabColor(decodeColor(args.color), definedOr(args.mode, 1));

@@ -99,7 +99,6 @@ controlled with a mode flag. You can specify this with `--mode`
 values of 0, 1, or 2, if you are so inclined. The default, modeless
 operation will often suffice.
 
-
 Config File
 -----------
 
@@ -132,4 +131,35 @@ palette, you can remove it from service by defining its value as `null`. The
 example above nixes `papayawhip`.
 
 Finally, can also redefine the default color, using the key `default`.
+
+Shortcuts
+---------
+
+All of the major options can be abreviated. `tabset --badge js` can be
+said as just `tabset -b js`. Similarly for `-c` instead of `--color`,
+`-h` instead of `--hash`, and `-t` instead of `--title`. `--hash` or `-h`
+does not actually have to have be accompanied by a `--color` option; that
+is assumed since only colors can be hashed.
+
+Finally, there is an `--all` or `-a` option that sets the color, badge, and
+title simultaneously. This is where it's especially helpful to define named
+colors for the types of tabs you may want. You don't even really need to
+specify the `-a` flag; if no flag is provided, `--all` is assumed.
+
+    tabset js
+
+For example will label everything it can find with "js" and set the js color.
+If no color named "js" is defined, a hashed color will be guessed.
+
+You can also mix and match. E.g.:
+
+    tabset js -t one.js
+
+Makes everything `js`, except the title which is `one.js`. Conversely
+
+    tabset js -b one.js
+
+Sets everything to `js` except the badge, which reflects the file name.
+
+Mix and match to suit your workflow.
 
