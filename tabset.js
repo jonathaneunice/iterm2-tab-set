@@ -12,24 +12,36 @@ var process    = require('process'),
 
 var args = minimist(process.argv.slice(2)),
     defaultColorSpec = 'peru',
-    colors = baseColorMap(),
-    colorNames = null;
+    colors = baseColorMap();
 
 updateColorMap('default', defaultColorSpec);
 readConfigFile();
-colorNames = _.keys(colors).sort();
 
 var wrap = linewrap(66);
 
-if (_.size(args) == 1) {
-  // no real args provided
-  println("tabset --color <colorname> | random | RANDOM");
-  println("       --color --hash <text>");
+if ((_.size(args) == 1) || args.help || args.h ) {
+  // no real args provided, or help requested
+  println()
+  println("To set an iTerm2 tab's color, badge, or title:")
+  println()
+  println("tabset --color <named-color>")
+  println("               | <rgb()>")
+  println("               | <hex-color>")
+  println("               | random")
+  println("               | RANDOM")
+  println("       --color --hash <string>");
   println("       --colors");
-  println("       --badge <text>");
-  println("       --title <text>");
+  println("       --badge <string>");
+  println("       --title <string>");
   println("       --mode  0 | 1 | 2");
-  println("to set a tab's color, badge, or title")
+  println("       --help | -h");
+  println()
+}
+
+
+if (args.colors) {
+  var colorNames = _.keys(colors).sort();
+  println(wrap("named colors: " + colorNames.join(', ')));
 }
 
 if (args.badge) {
@@ -46,14 +58,10 @@ if (args.title) {
   setTabTitle(title, args.mode || 1)
 }
 
-if (args.colors) {
-  println(wrap("named colors: " + colorNames.join(', ')));
-}
-
 if (args.color) {
   setTabColor(decodeColor(args.color), definedOr(args.mode, 1));
 }
-// does mode even matter for color setting?
+// does mode matter for color setting?
 
 
 /**
@@ -71,9 +79,52 @@ function definedOr(value, defaultValue) {
 }
 
 
+/**
+ * A low-level color spec decoder that handles only
+ * the simple cases: A named color, rgb() spec, or
+ * hex rgb spec.
+ */
+function decodeColorSpec(spec) {
+
+  // exact match for existing named color?
+  if (colors) {
+    var color = colors[spec];
+    if (color) return color;
+  }
+
+  // match rgb(r, g, b)
+  var rgbmatch = spec.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+  if (rgbmatch) {
+    return [ parseInt(rgbmatch[1]),
+             parseInt(rgbmatch[2]),
+             parseInt(rgbmatch[3]) ]
+  }
+
+  // match #fa21b4
+  var hexmatch = spec.match(/^#?([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])$/i);
+  if (hexmatch) {
+    return [ parseInt(hexmatch[1], 16),
+             parseInt(hexmatch[2], 16),
+             parseInt(hexmatch[3], 16) ]
+  }
+
+  // failed to decode
+  return null;
+}
+
+
+/**
+ * A high-level color decoder that handles the complex,
+ * UI-entangled cases such as random colors, hashed colors,
+ * partial string search, and defaults. By delegation to
+ * decodeColorSpec(), also handles the simpler cases of
+ * exactly named colors and rgb() or hex CSS color definitions.
+ */
 function decodeColor(name) {
   if (_.isArray(name)) return name;  // predecoded!
   if (name === null) return name;    // not in use
+
+  var colorNames = _.keys(colors).sort();
 
   if (!_.isString(name)) {
     // --color invoked, but no color specified
@@ -90,13 +141,14 @@ function decodeColor(name) {
     name = "random";
   }
 
+  // random named color
   if (name == "random") {
     var randColor = _.sample(colorNames);
     println("random color:", randColor)
     return colors[randColor];
   }
 
-  // really random - not just a random named color
+  // RANDOM color - not just a random named color
   if (name == "RANDOM") {
     var rcolor = [_.random(255), _.random(255), _.random(255) ];
     var rgbstr = [ 'rgb(', rcolor.join(','), ')'].join('');
@@ -104,29 +156,12 @@ function decodeColor(name) {
     return rcolor;
   }
 
+  // try a low level spec
   name = name.toLowerCase();
-  if (colors) {
-    var color = colors[name];
-    if (color) return color;
-  }
+  var defn = decodeColorSpec(name);
+  if (defn) return defn;
 
-  // match rgb(r, g, b)
-  var rgbmatch = name.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
-  if (rgbmatch) {
-    return [ parseInt(rgbmatch[1]),
-             parseInt(rgbmatch[2]),
-             parseInt(rgbmatch[3]) ]
-  }
-
-  // match #fa21b4
-  var hexmatch = name.match(/^#?([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])$/);
-  if (hexmatch) {
-    return [ parseInt(hexmatch[1], 16),
-             parseInt(hexmatch[2], 16),
-             parseInt(hexmatch[3], 16) ]
-  }
-
-  // final try - a prefix search
+  // finally, a string containment search
   if (colorNames) {
     var possibles = colorNames.filter(function(s){
       return s.indexOf(name) >= 0;
@@ -182,7 +217,6 @@ function setTabTitle(title, mode) {
  *
  * @param {string} msg
  */
-
 function setBadge(msg) {
   var msg64 = new Buffer(msg.toString()).toString('base64'),
       cmd = ansiseq('1337;SetBadgeFormat=', msg64);
@@ -219,14 +253,17 @@ function println() {
   process.stdout.write(msg);
 }
 
+/**
+ * Read and interpret the configuration file, ~/.tabset
+ */
 function readConfigFile() {
   var fpath = path.join(process.env.HOME, '.tabset');
   try {
     var config = JSON.parse(fs.readFileSync(fpath));
-    var newcolors = _.mapObject(config.colors, function(spec, key) {
+    _.each(config.colors, function(spec, key) {
       if (key == 'default')
         defaultColorSpec = spec; // might be name or value
-      updateColorMap(key, decodeColor(spec));
+      updateColorMap(key, spec);
     });
   } catch (e) {
     console.log("ERROR:", e);
@@ -235,15 +272,21 @@ function readConfigFile() {
 }
 
 
+/**
+ * Update the existing color map, either by
+ * adding decoded color specs or deleting entries.
+ */
 function updateColorMap(key, value) {
   if (value === null)
     delete colors[key];
   else
-    colors[key] = decodeColor(value);
+    colors[key] = decodeColorSpec(value);
 }
 
+
 /**
- * Returns the known CSS color names.
+ * Returns map of the known CSS color names
+ * to RGB color values.
  */
 function baseColorMap() {
   return {
