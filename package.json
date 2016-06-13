@@ -1,0 +1,22 @@
+{
+  "name": "iterm2-tab-set",
+  "version": "0.1.0",
+  "description": "Set iTerm2 tab color, title, and/or badge",
+  "main": "tabset.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "tabset": "./tabset.js"
+  },
+  "repository": {},
+  "author": "Jonathan Eunice",
+  "license": "MIT",
+  "dependencies": {
+    "linewrap": "^0.2.1",
+    "minimist": "^1.2.0",
+    "string-hash": "^1.1.0",
+    "tildify": "^1.2.0",
+    "underscore": "^1.8.3"
+  }
+}
