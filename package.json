@@ -1,6 +1,6 @@
 {
   "name": "iterm2-tab-set",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Set iTerm2 tab color, title, and/or badge",
   "main": "tabset.js",
   "scripts": {
@@ -9,7 +9,13 @@
   "bin": {
     "tabset": "./tabset.js"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathaneunice/iterm2-tab-set"
+  },
+  "files": [
+    "examples"
+  ],
   "author": "Jonathan Eunice",
   "license": "MIT",
   "dependencies": {

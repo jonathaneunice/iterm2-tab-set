@@ -37,7 +37,7 @@ isn't itself an actual color name.
 
 Special color names also recognized include `random`
 (chooses a CSS color name at random) and
-`RANDOM` (chooses choose an RGB color *completely*
+`RANDOM` (chooses an RGB color *completely*
 at random, not just from the named CSS color
 palette).
 
@@ -74,18 +74,14 @@ Create a JSON file in your home directory called `.tabset`.
       }
     }
 
-Now you can specify colors for `js`, `html`, and other purposes directly (in
-either `rgb()` or hex CSS formats). You can add new named colors, and use
-them just like you would one of the predefined base colors. For example here
+Now you can specify colors for `js`, `html`, and other purposes directly (using
+existing color names or`rgb()` or hex CSS formats). You can add new
+named colors, and use
+them just like you would use one of the predefined base colors. For example here
 a color `alisongreen` is defined, then the `server` color refers to
-`alisongreen`. The only restriction is that they must be defined before they
+`alisongreen`. The only restriction is that color names
+must be defined before they
 are used. You can also redefine the default color, using the key `default`.
 If you really don't like a color, and do not want it included in your
 palette, you can remove it from service by defining its value as `null`.
-
-
-
-
-
-
-
+The example above nixes `papayawhip`.
