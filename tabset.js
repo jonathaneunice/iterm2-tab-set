@@ -10,7 +10,8 @@ var process    = require('process'),
     stringHash = require('string-hash'),
     _          = require('underscore');
 
-var argopt = {alias: { a: 'all', b:'badge', c:'color',
+var wrap = linewrap(70),
+    argopt = {alias: { a: 'all', b:'badge', c:'color',
                        h:'hash', t:'title'} },
     args = minimist(process.argv.slice(2), argopt),
     defaultColorSpec = 'peru',
@@ -18,81 +19,86 @@ var argopt = {alias: { a: 'all', b:'badge', c:'color',
 
 updateColorMap('default', defaultColorSpec);
 readConfigFile();
+process_args();
 
-var wrap = linewrap(66);
+function process_args() {
 
-if (args.help || ((_.size(args) == 1) && !_.size(args._))) {
-  // help requested, or no real args provided
-  println()
-  println("To set an iTerm2 tab's color, badge, or title:")
-  println()
-  println("tabset --all|-a <string>")
-  println("       --color <named-color>")
-  println("               | <rgb()>")
-  println("               | <hex-color>")
-  println("               | random")
-  println("               | RANDOM")
-  println("       --hash <string>");
-  println("       --badge <string>");
-  println("       --title <string>");
-  println("       --mode  0 | 1 | 2");
-  println("       --colors");
-  println("       --help");
-  println()
-}
-
-
-if (args.colors) {
-  var colorNames = _.keys(colors).sort();
-  println(wrap("named colors: " + colorNames.join(', ')));
-}
-
-// combo set everthing
-if (_.size(args._) > 0)
-  args.all = args._.join(' ');
-
-if (args.all) {
-  setBadge(args.all);
-  setTabTitle(args.all, args.mode || 1)
-  var col = decodeColorSpec(args.all);
-  if (!col) {
-      var colorNames = _.keys(colors).sort();
-      var index = stringHash(args.all) % colorNames.length;
-      col = colors[colorNames[index]];
+  // help requested
+  if (args.help) {
+    println()
+    println("To set an iTerm2 tab's color, badge, or title:")
+    println()
+    println("tabset --all|-a <string>")
+    println("       --color <named-color>")
+    println("               | <rgb()>")
+    println("               | <hex-color>")
+    println("               | random")
+    println("               | RANDOM")
+    println("       --hash <string>");
+    println("       --badge <string>");
+    println("       --title <string>");
+    println("       --mode  0 | 1 | 2");
+    println("       --colors");
+    println("       --help");
+    println()
   }
-  setTabColor(col, definedOr(args.mode, 1));
-}
 
-if (args.badge) {
-  var badge = _.isString(args.badge)
-              ? args.badge
-              : tildify(process.cwd());
-  setBadge(badge);
-}
+  // no real args given, so improvise
+  if ((_.size(args) == 1) && _.isEmpty(args._)) {
+    args.all = tildify(process.cwd());
+  }
 
-if (args.title) {
-  var title = _.isString(args.title)
-              ? args.title
-              : path.basename(process.cwd());
-  setTabTitle(title, definedOr(args.mode, 1))
-}
+  if (args.colors) {
+    var colorNames = _.keys(colors).sort();
+    println(wrap("named colors: " + colorNames.join(', ')));
+  }
 
-if (args.hash && !args.color)
-  args.color = true;
+  // combo set everthing
+  if (_.size(args._) > 0)
+    args.all = args._.join(' ');
 
-if (args.color) {
-  setTabColor(decodeColor(args.color), definedOr(args.mode, 1));
+  if (args.all) {
+    setBadge(args.all);
+    setTabTitle(args.all, definedOr(args.mode, 1))
+    var col = decodeColorSpec(args.all);
+    if (!col) {
+        var colorNames = _.keys(colors).sort();
+        var index = stringHash(args.all) % colorNames.length;
+        col = colors[colorNames[index]];
+    }
+    setTabColor(col, definedOr(args.mode, 1));
+  }
+
+  if (args.badge) {
+    var badge = _.isString(args.badge)
+                ? args.badge
+                : tildify(process.cwd());
+    setBadge(badge);
+  }
+
+  if (args.title) {
+    var title = _.isString(args.title)
+                ? args.title
+                : path.basename(process.cwd());
+    setTabTitle(title, definedOr(args.mode, 1))
+  }
+
+  if (args.hash && !args.color)
+    args.color = true;
+
+  if (args.color) {
+    setTabColor(decodeColor(args.color), definedOr(args.mode, 1));
+    // does mode matter for color setting?
+  }
 }
-// does mode matter for color setting?
 
 
 /**
- * Helper function. If value is undefined, return
- * the default. Otherwise return the value. Helps
- * shorten very long, boilerplate ternary assignments
- * in a context where simple || alternation doesn't
- * necessarily work (because 0 or other falsey values
- * are often legit).
+ * If `value` is `undefined`, return `defaultValue`.
+ * Else return `value`. Helps set defaults, and shortens
+ * long boilerplate ternary assignments. Useful where simple
+ * `||` alternation doesn't work well (because 0 or other
+ * falsey values are legit).
  */
 function definedOr(value, defaultValue) {
   return (value === undefined)

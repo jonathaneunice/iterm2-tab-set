@@ -22,15 +22,41 @@ This will install the `tabset` command.
 Usage
 -----
 
+The easiest usage is just to run the command:
+
+    tabset
+
+This will colorize the tab header, set the tab
+title, and set the tab badge based on the current
+working directory.  If all you want are tabs to
+look a little different from each other, you're done.
+
+For a little more precision, you can give a "tag" to
+use instead of the current working directory. Perhaps
+one related to the kind of work you're doing:
+
+    tabset html
+
+Different tags will create different-looking tabs.
+
+More Precise Usage
+------------------
+
+If you want more control of what `tabset` is setting,
+and how, read on.
+
     tabset --color <colorspec>
 
-where <colorspec> is the name of a known color.
+where <colorspec> is the name or specificatoin
+a color, will set the tab header to that color.
 By default `tabset` knows all the CSS color names,
-though you can add others if you like.
+and how to interpret CSS-style `rgb()` and hex
+(e.g. `#663399`) color definitions. You can add
+new color names if you like (see below).
 
 If a color name is partially given (e.g. `alice`),
 the corresponding color will be guessed (e.g.
-`aliceblue`).  If more than one named CSS color
+`aliceblue`).  If more than one named color
 shares that name fragment, the possible matches
 will be listed, and one of them will be chosen
 at random. Note that fragments that exactly match
@@ -69,17 +95,21 @@ for other tabs and windows.
 Any string can be used. Case *is* significant.
 If you don't like the hashed selection, experiment with
 variations. You might hate `--hash js`, but find
-`--hash JS` or `--hash javascript` to be just right.
+`--hash JS` or `--hash javascript` to be just right
+
+If you use the `--hash` option, you don't really need to
+specify the `--color` flag. That will be assumed. So as a
+shortcut:
+
+    tabset --hash <word>
 
 Titles and Badges
 -----------------
 
-Beyond being distinguished by color, iTerm2 tabs can also
-have titles and badges. Titles appear
-in either the tab bar or on the window title. Badges are
-a large-font watermark that appears behind the tab's normal
-content. (Badges require a recent version of iTerm2: Version 3
-or later.)
+Beyond being distinguished by heaer color, iTerm2 tabs can have titles and
+badges. Titles appear in either the tab bar or as the window title. Badges
+are a large-font watermark that appears behind the tab's normal content.
+(Badges require iTerm2 Version 3 or later.)
 
     tabset --badge "server 1"
 
@@ -94,7 +124,7 @@ To set tab titles:
 
     tabset --title server
 
-iTerm2 has a complex system of tab title, window title, or both,
+iTerm2 has a complex system for setting tab title, window title, or both,
 controlled with a mode flag. You can specify this with `--mode`
 values of 0, 1, or 2, if you are so inclined. The default, modeless
 operation will often suffice.
@@ -126,7 +156,7 @@ the predefined CSS color names. For example here a color `alisongreen` is
 defined, then the `server` color refers to `alisongreen`. The only
 restriction is that color names must be defined before they are used.
 
-If you really don't like a color, and do not want it included in your
+If you really don't like a color and do not want it included in your
 palette, you can remove it from service by defining its value as `null`. The
 example above nixes `papayawhip`.
 
@@ -135,7 +165,7 @@ Finally, can also redefine the default color, using the key `default`.
 Shortcuts
 ---------
 
-All of the major options can be abreviated. `tabset --badge js` can be
+All of the major options can be abbreviated. `tabset --badge js` can be
 said as just `tabset -b js`. Similarly for `-c` instead of `--color`,
 `-h` instead of `--hash`, and `-t` instead of `--title`. `--hash` or `-h`
 does not actually have to have be accompanied by a `--color` option; that
@@ -162,4 +192,3 @@ Makes everything `js`, except the title which is `one.js`. Conversely
 Sets everything to `js` except the badge, which reflects the file name.
 
 Mix and match to suit your workflow.
-
