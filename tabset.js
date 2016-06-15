@@ -29,15 +29,16 @@ function process_args() {
     println("To set an iTerm2 tab's color, badge, or title:")
     println()
     println("tabset --all|-a <string>")
-    println("       --color <named-color>")
-    println("               | <rgb()>")
-    println("               | <hex-color>")
-    println("               | random")
-    println("               | RANDOM")
-    println("       --hash <string>");
-    println("       --badge <string>");
-    println("       --title <string>");
+    println("       --color|-c <named-color>")
+    println("                  | <rgb()>")
+    println("                  | <hex-color>")
+    println("                  | random")
+    println("                  | RANDOM")
+    println("       --hash|-h <string>");
+    println("       --badge|-b <string>");
+    println("       --title|-t <string>");
     println("       --mode  0 | 1 | 2");
+    println("       --init")
     println("       --colors");
     println("       --help");
     println()
@@ -86,10 +87,13 @@ function process_args() {
   if (args.hash && !args.color)
     args.color = true;
 
-  if (args.color) {
+  if (args.color)
     setTabColor(decodeColor(args.color), definedOr(args.mode, 1));
     // does mode matter for color setting?
-  }
+
+
+  if (args.init)
+    initConfigFile();
 }
 
 
@@ -281,13 +285,48 @@ function println() {
   process.stdout.write(msg);
 }
 
+
+/**
+ * Write a suitable default configuration file
+ */
+function initConfigFile() {
+  var configpath = path.join(process.env.HOME, '.tabset');
+
+  if (fs.existsSync(configpath)) {
+    println("config file ~/.tabset already exists");
+    return;
+  }
+
+  var sample =
+  {
+      "colors": {
+      "alisongreen": "rgb(125,199,53)",
+      "js": "orchid",
+      "html": "gold",
+      "server": "alisongreen",
+      "papayawhip": null
+    }
+  };
+
+  try {
+    var payload = JSON.stringify(sample, null, '  ');
+    fs.writeFileSync(configpath, payload);
+  } catch (e) {
+    console.log("ERROR:", e);
+  }
+}
+
+
 /**
  * Read and interpret the configuration file, ~/.tabset
  */
 function readConfigFile() {
-  var fpath = path.join(process.env.HOME, '.tabset');
+  var configpath = path.join(process.env.HOME, '.tabset');
+
+  if (!fs.existsSync(configpath)) return {};
+
   try {
-    var config = JSON.parse(fs.readFileSync(fpath));
+    var config = JSON.parse(fs.readFileSync(configpath));
     _.each(config.colors, function(spec, key) {
       if (key == 'default')
         defaultColorSpec = spec; // might be name or value

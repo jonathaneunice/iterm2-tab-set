@@ -47,8 +47,8 @@ and how, read on.
 
     tabset --color <colorspec>
 
-where <colorspec> is the name or specificatoin
-a color, will set the tab header to that color.
+where <colorspec> names or defines acolor,
+will set the tab header to that color.
 By default `tabset` knows all the CSS color names,
 and how to interpret CSS-style `rgb()` and hex
 (e.g. `#663399`) color definitions. You can add
@@ -75,21 +75,26 @@ Special color names also recognized include `random`
 at random, not just from the named CSS color
 palette).
 
-If you want to define your color precisely, that is possible
-with either `rgb(x,y,z)` style or `#663399` hex style CSS
+
+If you choose to define your color precisely RGB (e.g. using
+RGB (e.g. `rgb(102,51,153)`) or hex (e.g. `#663399`)
 color specifications. `rgb` specs must be quoted to avoid
 Unix shell ugliness, and hex style must be quoted if the
 optional but traditional `#` prefix is used.
 
 In many cases, you may not care exactly what color is
 chosen, just that like terminal tabs are similarly
-colored. In this case, you can use the `--hash` option.
+colored. In this case, you can use hashed color option.
 
     tabset --color --hash <word>
 
-will choose a color based on a hash of <word>. So if
+or indeed just
+
+    tabset --hash <word>
+
+will choose a color based on a hash of `<word>`. So if
 you want all your JavaScript coding tabs to have one color,
-`tabset --color --hash js` will do the trick. Other
+`tabset --hash js` will do the trick. Other
 words such as `css`, `html`, and `server` can be used
 for other tabs and windows.
 Any string can be used. Case *is* significant.
@@ -97,16 +102,10 @@ If you don't like the hashed selection, experiment with
 variations. You might hate `--hash js`, but find
 `--hash JS` or `--hash javascript` to be just right
 
-If you use the `--hash` option, you don't really need to
-specify the `--color` flag. That will be assumed. So as a
-shortcut:
-
-    tabset --hash <word>
-
 Titles and Badges
 -----------------
 
-Beyond being distinguished by heaer color, iTerm2 tabs can have titles and
+Beyond being distinguished by header color, iTerm2 tabs can have titles and
 badges. Titles appear in either the tab bar or as the window title. Badges
 are a large-font watermark that appears behind the tab's normal content.
 (Badges require iTerm2 Version 3 or later.)
@@ -116,7 +115,7 @@ are a large-font watermark that appears behind the tab's normal content.
 Sets the badge watermark to "server 1". The quotes are needed
 to manage the Unix shell argument handling. Single word badges
 and titles do not need to be quoted, but any that include spaces
-should be. You can also embed newlines into badges with `\n`.
+should be. You can also embed newlines in badges with `\n`.
 Unicode characters are also possible (easiest with cut-and-paste,
 since Unicode codepoints are difficult to specify in many shells).
 
@@ -157,10 +156,17 @@ defined, then the `server` color refers to `alisongreen`. The only
 restriction is that color names must be defined before they are used.
 
 If you really don't like a color and do not want it included in your
-palette, you can remove it from service by defining its value as `null`. The
+palette, remove it from service by defining its value as `null`. The
 example above nixes `papayawhip`.
 
-Finally, can also redefine the default color, using the key `default`.
+You can also redefine the default color, using the key `default`.
+
+The fastest way to get going with your own named colors is:
+
+    tabset --init
+
+Which will create `.tabset` in your `$HOME` directory if it does
+not already exist.
 
 Shortcuts
 ---------
@@ -171,15 +177,15 @@ said as just `tabset -b js`. Similarly for `-c` instead of `--color`,
 does not actually have to have be accompanied by a `--color` option; that
 is assumed since only colors can be hashed.
 
-Finally, there is an `--all` or `-a` option that sets the color, badge, and
+Finally, there is an `--all` or `-a` all-in-one option that sets the color, badge, and
 title simultaneously. This is where it's especially helpful to define named
-colors for the types of tabs you may want. You don't even really need to
+colors for the types of tabs you masy want. You don't even really need to
 specify the `-a` flag; if no flag is provided, `--all` is assumed.
 
     tabset js
 
-For example will label everything it can find with "js" and set the js color.
-If no color named "js" is defined, a hashed color will be guessed.
+For example will label everything it can find with `"js"` and set the `js` color.
+If no color named `js` is defined, a hashed color will be guessed.
 
 You can also mix and match. E.g.:
 
