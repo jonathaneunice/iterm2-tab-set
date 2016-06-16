@@ -32,6 +32,6 @@ function colorPicker(options, callback) {
 
 
 colorPicker.bits16to8 = bits16to8;
-colorPicker.bits8to16 - bits8to16;
+colorPicker.bits8to16 = bits8to16;
 
 exports = module.exports = colorPicker;
