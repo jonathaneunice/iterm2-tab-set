@@ -114,7 +114,7 @@ function process_args() {
   else if (args.pick) {
     colorpick({ targetApp: "iTerm2"},
               function(res){
-                println("picked color:", rgbstr(res.rgb));
+                println("picked:", rgbstr(res.rgb));
                 setTabColor(res.rgb);
               });
   }
@@ -124,33 +124,8 @@ function process_args() {
     println("deleted:", args.del);
   }
 
-  if (args.list) {
-    if (_.isEmpty(config.colors))
-      println("no custom colors to list")
-    else {
-      println();
-      var swatchl = 9,
-          namel = _.max(_.keys(config.colors).map(n => n.length)),
-          nulled = [];
-      println(padRight("Swatch", swatchl),
-              padRight("Name", namel+1),
-              "Definition")
-      _.each(config.colors, function(value, key){
-        if (!value)
-          nulled.push(key);
-        else {
-          var rgb = decodeColorSpec(value),
-              swatch = ansiseq2(`48;2;${rgb[0]};${rgb[1]};${rgb[2]}m`, padRight('', swatchl));
-          println(swatch, padRight(key, namel+1), value);
-        }
-      });
-      if (nulled.length) {
-        println();
-        println(wrap("Nulled: " + nulled.join(", ")));
-      }
-      println();
-    }
-  }
+  if (args.list)
+    listColors();
 
   if (args.color)
     setTabColor(decodeColor(args.color));
@@ -184,6 +159,39 @@ function delColor(name) {
 
 
 /**
+ * List out the custom colors.
+ */
+function listColors() {
+  if (_.isEmpty(config.colors))
+    println("no custom colors to list")
+  else {
+    println();
+    var namel = _.max(_.keys(config.colors).map(n => n.length)),
+        swatchl = 9,
+        nulled = [];
+    println(padRight("Name", namel+1),
+            padRight("Swatch", swatchl+1),
+            "Definition")
+    _.each(config.colors, function(value, key){
+      if (!value)
+        nulled.push(key);
+      else {
+        var rgb = decodeColorSpec(value),
+            swatch = ansiseq2(`48;2;${rgb[0]};${rgb[1]};${rgb[2]}m`,
+                              padRight('', swatchl));
+        println(padRight(key, namel+1), swatch + ' ', value);
+      }
+    });
+    if (nulled.length) {
+      println();
+      println(wrap("Nulled: " + nulled.join(", ")));
+    }
+    println();
+  }
+}
+
+
+/**
  * If `value` is `undefined`, return `defaultValue`.
  * Else return `value`. Helps set defaults, and shortens
  * long boilerplate ternary assignments. Useful where simple
@@ -193,15 +201,24 @@ function delColor(name) {
 function definedOr(value, defaultValue) {
   return (value === undefined)
       ? defaultValue
-      : value;
+      : value
 }
 
 
-function padRight(str, size, padwith) {
+/**
+ * Pad a string on the right to reach the desired
+ * width. Note: Does no truncation if the string is
+ * already wider than the desired width.
+ *
+ * @param {String} str      String to pad.
+ * @param {int}    width    Desired string width.
+ * @param {String} padding  Padding character (default space).
+ */
+function padRight(str, width, padding) {
   var len = str.length
-  return (size <= len)
+  return (width <= len)
     ? str
-    : str + Array(size-len+1).join(padwith||" ")
+    : str + Array(width-len+1).join(padding||" ")
 }
 
 
