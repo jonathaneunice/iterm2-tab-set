@@ -70,25 +70,28 @@ You can see all of the color names with:
     tabset --colors
 
 Special color names also recognized include `random`
-(chooses a CSS color name at random) and
+(chooses a known named color at random) and
 `RANDOM` (chooses an RGB color *completely*
-at random, not just from the named CSS color
+at random, not just from the named color
 palette).
 
+If you choose to define your color precisely with RGB (e.g.
+`rgb(102,51,153)`) or hex (e.g. `#663399`) color specs, note that quotes are
+probably needed to avoid Unix shell ugliness. That's especially true for
+`rgb()` colors, and true of hex specs if the optional but traditional `#`
+prefix is used.
 
-If you choose to define your color precisely RGB (e.g. using
-RGB (e.g. `rgb(102,51,153)`) or hex (e.g. `#663399`)
-color specifications. `rgb` specs must be quoted to avoid
-Unix shell ugliness, and hex style must be quoted if the
-optional but traditional `#` prefix is used.
+If you want to visually pick a color rather than
+specify it textually:
+
+   tabset --pick
+
+Will launch the Mac color picker and set the color
+based on its result.
 
 In many cases, you may not care exactly what color is
 chosen, just that like terminal tabs are similarly
 colored. In this case, you can use hashed color option.
-
-    tabset --color --hash <word>
-
-or indeed just
 
     tabset --hash <word>
 
@@ -100,7 +103,7 @@ for other tabs and windows.
 Any string can be used. Case *is* significant.
 If you don't like the hashed selection, experiment with
 variations. You might hate `--hash js`, but find
-`--hash JS` or `--hash javascript` to be just right
+`--hash js_`, `--hash JS` or `--hash javascript` to be just right
 
 Titles and Badges
 -----------------
@@ -115,9 +118,17 @@ are a large-font watermark that appears behind the tab's normal content.
 Sets the badge watermark to "server 1". The quotes are needed
 to manage the Unix shell argument handling. Single word badges
 and titles do not need to be quoted, but any that include spaces
-should be. You can also embed newlines in badges with `\n`.
+should be. You can also embed newlines with `\n`.
 Unicode characters are also possible (easiest with cut-and-paste,
 since Unicode codepoints are difficult to specify in many shells).
+
+iTerm2 defines some variables that badges can live-display. For example,
+to track the current working directory:
+
+    tabset --badge '\(session.path)'
+
+For more of these, see
+[the iTerem 2 docs](https://www.iterm2.com/documentation-badges.html).
 
 To set tab titles:
 
@@ -165,17 +176,40 @@ The fastest way to get going with your own named colors is:
 
     tabset --init
 
-Which will create `.tabset` in your `$HOME` directory if it does
+Which will create a sample
+`.tabset` in your `$HOME` directory if it does
 not already exist.
+
+`tabset` also provides commands to make selecting and update
+custom color
+names easier.
+
+    tabset --add python "rgb(9,3,199)"
+
+Will do the trick. Or to visually select the color:
+
+    tabset --add python --pick
+
+Will bring up the Mac color picker, and set the result
+as your named color.
+
+    tabset --del python
+
+Will remove that custom definition. And
+
+    tabset --list
+
+Will list out all currently-defined custom colors.
+(There are many online resources for exploring the
+base set of CSS named colors. For example,
+[this one](http://www.crockford.com/wrrrld/color.html).)
 
 Shortcuts
 ---------
 
 All of the major options can be abbreviated. `tabset --badge js` can be
 said as just `tabset -b js`. Similarly for `-c` instead of `--color`,
-`-h` instead of `--hash`, and `-t` instead of `--title`. `--hash` or `-h`
-does not actually have to have be accompanied by a `--color` option; that
-is assumed since only colors can be hashed.
+`-h` instead of `--hash`, `-p` for `--pick`, and `-t` instead of `--title`.
 
 Finally, there is an `--all` or `-a` all-in-one option that sets the color, badge, and
 title simultaneously. This is where it's especially helpful to define named

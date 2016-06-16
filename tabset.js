@@ -8,17 +8,24 @@ var process    = require('process'),
     path       = require('path'),
     tildify    = require('tildify'),
     stringHash = require('string-hash'),
+    colorpick  = require('./colorpick'),
     _          = require('underscore');
 
 var wrap = linewrap(70),
     argopt = {alias: { a: 'all', b:'badge', c:'color',
-                       h:'hash', t:'title'} },
+                       h:'hash', t:'title', p: 'pick',
+                       del: 'delete'} },
     args = minimist(process.argv.slice(2), argopt),
     defaultColorSpec = 'peru',
-    colors = baseColorMap();
+    colors = baseColorMap(),
+    cssColorNames = _.keys(colors).sort(),
+    configpath = path.join(process.env.HOME, '.tabset');
 
 updateColorMap('default', defaultColorSpec);
-readConfigFile();
+var config = readConfigFile();
+if (_.isEmpty(config))
+  config = { colors: {} };
+interpretConfig(config);
 process_args();
 
 function process_args() {
@@ -65,7 +72,9 @@ function process_args() {
     if (!col) {
         var colorNames = _.keys(colors).sort();
         var index = stringHash(args.all) % colorNames.length;
-        col = colors[colorNames[index]];
+        var hashColor = colorNames[index];
+        println("picked color:", hashColor);
+        col = colors[hashColor];
     }
     setTabColor(col, definedOr(args.mode, 1));
   }
@@ -87,13 +96,90 @@ function process_args() {
   if (args.hash && !args.color)
     args.color = true;
 
-  if (args.color)
-    setTabColor(decodeColor(args.color), definedOr(args.mode, 1));
-    // does mode matter for color setting?
+  if (args.add) {
+    if (args.pick)
+      colorpick({ targetApp: "iTerm2"},
+              function(res){
+                addColor(args.add, rgbstr(res.rgb));
+                println("added:",args.add)
+              });
+    else if (_.size(args._) == 1) {
+      addColor(args.add, args._[0]);
+      println("added:", args.add);
+    }
+    else {
+      println("add what color?");
+    }
+  }
+  else if (args.pick) {
+    colorpick({ targetApp: "iTerm2"},
+              function(res){
+                println("picked color:", rgbstr(res.rgb));
+                setTabColor(res.rgb);
+              });
+  }
 
+  if (args.del) {
+    delColor(args.del);
+    println("deleted:", args.del);
+  }
+
+  if (args.list) {
+    if (_.isEmpty(config.colors))
+      println("no custom colors to list")
+    else {
+      println();
+      var swatchl = 9,
+          namel = _.max(_.keys(config.colors).map(n => n.length)),
+          nulled = [];
+      println(padRight("Swatch", swatchl),
+              padRight("Name", namel+1),
+              "Definition")
+      _.each(config.colors, function(value, key){
+        if (!value)
+          nulled.push(key);
+        else {
+          var rgb = decodeColorSpec(value),
+              swatch = ansiseq2(`48;2;${rgb[0]};${rgb[1]};${rgb[2]}m`, padRight('', swatchl));
+          println(swatch, padRight(key, namel+1), value);
+        }
+      });
+      if (nulled.length) {
+        println();
+        println(wrap("Nulled: " + nulled.join(", ")));
+      }
+      println();
+    }
+  }
+
+  if (args.color)
+    setTabColor(decodeColor(args.color));
 
   if (args.init)
     initConfigFile();
+}
+
+
+/**
+ * Add a color to the local definitions
+ */
+function addColor(name, spec) {
+  config.colors[name] = spec;
+  writeConfigFile(config);
+}
+
+
+/**
+ * Remove a color from use. If it's a base color, need
+ * to mark it `null` in config file. Otherwise, no reason
+ * to even keep it in the config file. Delete outright.
+ */
+function delColor(name) {
+  if (_.contains(cssColorNames, name))
+    config.colors[name] = null;
+  else
+    delete config.colors[name];
+  writeConfigFile(config);
 }
 
 
@@ -108,6 +194,14 @@ function definedOr(value, defaultValue) {
   return (value === undefined)
       ? defaultValue
       : value;
+}
+
+
+function padRight(str, size, padwith) {
+  var len = str.length
+  return (size <= len)
+    ? str
+    : str + Array(size-len+1).join(padwith||" ")
 }
 
 
@@ -183,8 +277,7 @@ function decodeColor(name) {
   // RANDOM color - not just a random named color
   if (name == "RANDOM") {
     var rcolor = [_.random(255), _.random(255), _.random(255) ];
-    var rgbstr = [ 'rgb(', rcolor.join(','), ')'].join('');
-    println("RANDOM color:", rgbstr);
+    println("RANDOM color:", rgbstr(rcolor));
     return rcolor;
   }
 
@@ -219,15 +312,22 @@ function decodeColor(name) {
 
 
 /**
+ * Format a three-element rgb araay into a CSS-style
+ * rgb specification.
+ */
+function rgbstr(rgbarray) {
+  return [ 'rgb(', rgbarray.join(','), ')'].join('');
+}
+
+/**
  * Set the tab or window color of the topmost iTerm2 tab/window.
  *
  * @param {Array of int} color RGB colors to set.
- * @param {int} mode
  */
-function setTabColor(color, mode) {
-  var cmd = ansiseq('6;', mode, ';bg;red;brightness;',   color[0]) +
-            ansiseq('6;', mode, ';bg;green;brightness;', color[1]) +
-            ansiseq('6;', mode, ';bg;blue;brightness;',  color[2]);
+function setTabColor(color) {
+  var cmd = ansiseq('6;1;bg;red;brightness;',   color[0]) +
+            ansiseq('6;1;bg;green;brightness;', color[1]) +
+            ansiseq('6;1;bg;blue;brightness;',  color[2]);
   print(cmd);
 }
 
@@ -257,12 +357,23 @@ function setBadge(msg) {
 
 
 /**
- * ANSI command sequences begin with an ESC ] and end with a
+ * Many of iTterm2's command sequences begin with an ESC ] and end with a
  * BEL (Ctrl-G). This function returns its arguments wrapped
  * in those start/stop codes.
  */
 function ansiseq() {
   var parts = _.flatten(['\u001b]', _.toArray(arguments), '\u0007']);
+  return parts.join('');
+}
+
+
+/**
+ * Other iTterm2 command sequences are slightly differently structured.
+ * This function returns its arguments wrapped
+ * in those start/stop codes.
+ */
+function ansiseq2() {
+  var parts = _.flatten(['\u001b[', _.toArray(arguments), '\u001b[0m']);
   return parts.join('');
 }
 
@@ -286,11 +397,18 @@ function println() {
 }
 
 
+function interpretConfig(config) {
+  _.each(config.colors, function(spec, key) {
+      if (key == 'default')
+        defaultColorSpec = spec; // might be name or value
+      updateColorMap(key, spec);
+    });
+}
+
 /**
  * Write a suitable default configuration file
  */
 function initConfigFile() {
-  var configpath = path.join(process.env.HOME, '.tabset');
 
   if (fs.existsSync(configpath)) {
     println("config file ~/.tabset already exists");
@@ -321,20 +439,22 @@ function initConfigFile() {
  * Read and interpret the configuration file, ~/.tabset
  */
 function readConfigFile() {
-  var configpath = path.join(process.env.HOME, '.tabset');
 
   if (!fs.existsSync(configpath)) return {};
-
   try {
-    var config = JSON.parse(fs.readFileSync(configpath));
-    _.each(config.colors, function(spec, key) {
-      if (key == 'default')
-        defaultColorSpec = spec; // might be name or value
-      updateColorMap(key, spec);
-    });
+    return JSON.parse(fs.readFileSync(configpath));
   } catch (e) {
     console.log("ERROR:", e);
     return {};
+  }
+}
+
+
+function writeConfigFile(data) {
+  try {
+    fs.writeFileSync(configpath, JSON.stringify(data, null, "  "));
+  } catch (e) {
+    console.log("ERROR:", e);
   }
 }
 

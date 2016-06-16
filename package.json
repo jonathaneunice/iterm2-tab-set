@@ -1,6 +1,6 @@
 {
   "name": "iterm2-tab-set",
-  "version": "0.4.0",
+  "version": "0.5.2",
   "description": "Set iTerm2 tab color, title, and/or badge",
   "main": "tabset.js",
   "scripts": {
@@ -14,13 +14,28 @@
     "url": "https://github.com/jonathaneunice/iterm2-tab-set"
   },
   "files": [
-    "examples"
+    "examples",
+    "colorpick.js"
+  ],
+  "keywords": [
+    "terminal",
+    "iTerm",
+    "iTerm 2",
+    "tab",
+    "color",
+    "title",
+    "badge",
+    "decorate",
+    "differentiate",
+    "Mac"
   ],
   "author": "Jonathan Eunice",
   "license": "MIT",
   "dependencies": {
+    "ansi-strikethrough": "^0.1.1",
     "linewrap": "^0.2.1",
     "minimist": "^1.2.0",
+    "run-applescript": "^3.0.0",
     "string-hash": "^1.1.0",
     "tildify": "^1.2.0",
     "underscore": "^1.8.3"
