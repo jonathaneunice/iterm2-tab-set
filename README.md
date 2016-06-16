@@ -1,14 +1,18 @@
 Tabset
 ------
 
-Tabset is designed to make life easier for those
-using iTerm2 on the Mac. It provides both a CLI
-command that allows the
-easy setting of a terminal tab's title, badge,
-and color. This is helpful when you have a lot
-of tabs in operation simultaneously, and wish
-to visually distinguish them.
+Have a lot of iTerm2 windows open? They all look nearly indistinguishable?
+And when you go to the `Window` menu to select one, figuring out
+which one is impeded because they're all titled "Shell"?  `tabset`
+can help.
 
+`tabset` is designed to make life easier for those using iTerm2 on
+the Mac. It provides a CLI command that allows easy setting of
+iTerm2 tab/window titles, badges, and colors. If you have a lot of
+tabs/windows in operation simultaneously, `tabset` helps to visually
+distinguish them.
+
+![example tab](./docs/basic.png)
 
 Installation
 ------------
@@ -88,6 +92,8 @@ specify it textually:
 
 Will launch the Mac color picker and set the color
 based on its result.
+
+![example of pick](./docs/pick.png)
 
 In many cases, you may not care exactly what color is
 chosen, just that like terminal tabs are similarly
@@ -203,6 +209,9 @@ Will list out all currently-defined custom colors.
 (There are many online resources for exploring the
 base set of CSS named colors. For example,
 [this one](http://www.crockford.com/wrrrld/color.html).)
+
+![example of list](./docs/list.png)
+
 
 Shortcuts
 ---------
