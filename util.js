@@ -36,6 +36,30 @@ function definedOr(value, defaultValue) {
 
 
 /**
+ * Return the maximum length of a collection of strings.
+ * The collection may be an array or an object. If an object,
+ * uses the object keys. (To find the max length of the object's
+ * values, compute a list of values first.)
+ */
+function maxLength(o) {
+  var strings = _.isArray(o) ? o : _.keys(o);
+  return _.max(strings.map(s => s.length));
+
+  // equivalent to `longest(o).length`
+}
+
+
+/**
+ * Return the longest string in the given object. Like
+ * maxLength(), but returns the actual string.
+ */
+function longest(o) {
+  var strings = _.isArray(o) ? o : _.keys(o);
+  return _.max(strings, s => s.length);
+}
+
+
+/**
  * Pad a string on the right to reach the desired
  * width. Note: Does no truncation if the string is
  * already wider than the desired width.
@@ -127,6 +151,8 @@ exports = module.exports = {
   globalize,
   definedOr,
   padRight,
+  maxLength,
+  longest,
   print,
   println,
   error,

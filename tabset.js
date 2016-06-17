@@ -168,8 +168,10 @@ function addColor(name, spec) {
 function delColor(name) {
   if (_.contains(cssColorNames, name))
     config.colors[name] = null;
-  else
+  else if (_.has(config.colors, name))
     delete config.colors[name];
+  else
+    errorExit('no such color', JSON.stringify(name));
   writeJSON(configpath, config);
 }
 
@@ -182,7 +184,7 @@ function listColors() {
     println("no custom colors to list")
   else {
     println();
-    var namel = _.max(_.keys(config.colors).map(n => n.length)),
+    var namel = maxLength(config.colors),
         swatchl = 9,
         nulled = [];
     println(padRight("Name", namel+1),
@@ -423,4 +425,3 @@ function updateColorMap(key, value) {
   else
     colors[key] = decodeColorSpec(value);
 }
-
