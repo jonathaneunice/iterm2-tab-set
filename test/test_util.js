@@ -5,6 +5,16 @@ var util = require('../util');
 util.globalize(util);
 
 describe('util', function() {
+
+  describe('globalize', function(){
+    it('should make functions globally available', function(){
+      assert.isFunction(definedOr);
+      assert.isFunction(padRight);
+      assert.isFunction(maxLength);
+      assert.isFunction(longest);
+    });
+  }),
+
   describe('definedOr', function () {
     it('should return first value, if defined, else default', function () {
       assert.equal(definedOr(1, 3), 1);
@@ -58,9 +68,9 @@ describe('util', function() {
     it('should work on empty objects', function () {
       assert.equal(maxLength({}), 0);
     });
-  });
+  }),
 
-describe('longest', function () {
+  describe('longest', function () {
     var list = 'and then there was a gigantic event'.split(' '),
         hash = { and: 1, then: 2, there: 3, was: 4, a: 5,
                  gigantic: 6, event: 7};
@@ -75,7 +85,26 @@ describe('longest', function () {
     }),
     it('should work on empty objects', function () {
       assert.equal(longest({}), null);
-    });
+    })
+  }),
+
+  describe('print', function () {
+    it('should be tested');
+  }),
+  describe('println', function () {
+    it('should be tested');
+  }),
+  describe('error', function () {
+    it('should be tested');
+  }),
+  describe('errorExit', function () {
+    it('should be tested');
+  }),
+  describe('readJSON', function () {
+    it('should be tested');
+  }),
+  describe('writeJSON', function () {
+    it('should be tested');
   });
 });
 
