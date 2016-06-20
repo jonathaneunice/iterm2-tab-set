@@ -43,6 +43,7 @@ function definedOr(value, defaultValue) {
  */
 function maxLength(o) {
   var strings = _.isArray(o) ? o : _.keys(o);
+  if (!_.size(strings)) return 0;
   return _.max(strings.map(s => s.length));
 
   // equivalent to `longest(o).length`
@@ -55,6 +56,7 @@ function maxLength(o) {
  */
 function longest(o) {
   var strings = _.isArray(o) ? o : _.keys(o);
+  if (!_.size(strings)) return null;
   return _.max(strings, s => s.length);
 }
 

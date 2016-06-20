@@ -1,6 +1,6 @@
 {
   "name": "iterm2-tab-set",
-  "version": "0.6.2",
+  "version": "0.6.4",
   "description": "Set iTerm2 tab color, title, and/or badge",
   "main": "tabset.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "files": [
     "docs",
     "examples",
+    "test",
     "colorpick.js",
     "csscolors.js",
     "util.js"
