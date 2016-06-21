@@ -15,7 +15,7 @@ var process    = require('process'),
 
 util.globalize(util);
 
-var wrap = linewrap(70),
+var wrap = linewrap(70, {skipScheme: 'ansi-color'}),
     argopt = {alias: { a: 'all', b:'badge', c:'color',
                        h:'hash', t:'title', p: 'pick',
                        del: 'delete'} },
@@ -23,6 +23,7 @@ var wrap = linewrap(70),
 
 var defaultColorSpec = 'peru',
     colors = cssColors(),
+    allcolors = _.clone(colors), // remember even if deleted
     cssColorNames = _.keys(colors).sort();
 
 updateColorMap('default', defaultColorSpec);
@@ -195,17 +196,34 @@ function listColors() {
         nulled.push(key);
       else {
         var rgb = decodeColorSpec(value),
-            swatch = ansiseq2(`48;2;${rgb[0]};${rgb[1]};${rgb[2]}m`,
-                              padRight('', swatchl));
+            swatch = swatchString(rgb, swatchl);
         println(padRight(key, namel+1), swatch + ' ', value);
       }
     });
     if (nulled.length) {
       println();
-      println(wrap("Nulled: " + nulled.join(", ")));
+      var nullplus = nulled.map(n => {
+        var rgb = decodeColorSpec(n);
+        println("n:", n, "rgb:", JSON.stringify(rgb));
+        var np = n + (rgb ? swatchString(rgb, 2) : "");
+        println(np);
+        return np;
+      });
+      println(wrap("Nulled: " + nullplus.join(", ")));
     }
     println();
   }
+}
+
+
+/**
+ * Return a swatch (ANSI-colored string).
+ * @param {Array of Integer} rgb - color as rgb values
+ * @param {Integer} length - how wide?
+ */
+function swatchString(rgb, length) {
+  return ansiseq2(`48;2;${rgb[0]};${rgb[1]};${rgb[2]}m`,
+                  padRight('', length));
 }
 
 
@@ -218,7 +236,7 @@ function decodeColorSpec(spec) {
 
   // exact match for existing named color?
   if (colors) {
-    var color = colors[spec];
+    var color = allcolors[spec];
     if (color) return color;
   }
 
@@ -422,6 +440,9 @@ function initConfigFile() {
 function updateColorMap(key, value) {
   if (value === null)
     delete colors[key];
-  else
-    colors[key] = decodeColorSpec(value);
+  else {
+    var rgb = decodeColorSpec(value);
+    colors[key] = rgb;
+    allcolors[key] = rgb;
+  }
 }
