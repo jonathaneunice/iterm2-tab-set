@@ -204,10 +204,7 @@ function listColors() {
       println();
       var nullplus = nulled.map(n => {
         var rgb = decodeColorSpec(n);
-        println("n:", n, "rgb:", JSON.stringify(rgb));
-        var np = n + (rgb ? swatchString(rgb, 2) : "");
-        println(np);
-        return np;
+        return n + (rgb ? swatchString(rgb, 2) : "");
       });
       println(wrap("Nulled: " + nullplus.join(", ")));
     }
