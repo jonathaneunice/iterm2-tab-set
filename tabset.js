@@ -14,6 +14,15 @@ var util       = require('./util')
 var _          = require('underscore')
 
 util.globalize(util)
+// explicit definition of util imports - experimental
+const print = util.print
+const println = util.println
+const readJSON = util.readJSON
+const writeJSON = util.writeJSON
+const definedOr = util.definedOr
+const errorExit = util.errorExit
+const padRight = util.padRight
+const maxLength = util.maxLength
 
 var wrap = linewrap(70, {skipScheme: 'ansi-color'})
 var argopt = {alias: { a: 'all',  b: 'badge', c: 'color',
@@ -62,13 +71,13 @@ function process_args () {
   }
 
   // no real args given, so improvise
-  if ((_.size(args) == 1) && _.isEmpty(args._)) {
+  if ((_.size(args) === 1) && _.isEmpty(args._)) {
     args.all = tildify(process.cwd())
   }
 
   if (args.colors) {
     var colorNames = _.keys(colors).sort()
-    println(wrap("named colors: " + colorNames.join(', ')))
+    println(wrap('named colors: ' + colorNames.join(', ')))
   }
 
   // combo set everthing
@@ -81,11 +90,11 @@ function process_args () {
     setTabTitle(args.all, definedOr(args.mode, 1))
     var col = decodeColorSpec(args.all)
     if (!col) {
-        var colorNames = _.keys(colors).sort()
-        var index = stringHash(args.all) % colorNames.length
-        var hashColor = colorNames[index]
-        println('picked color:', hashColor)
-        col = colors[hashColor]
+      var colorNames = _.keys(colors).sort()
+      var index = stringHash(args.all) % colorNames.length
+      var hashColor = colorNames[index]
+      println('picked color:', hashColor)
+      col = colors[hashColor]
     }
     setTabColor(col, definedOr(args.mode, 1))
   }
@@ -118,14 +127,13 @@ function process_args () {
                   addColor(args.add, rgbstr(res.rgb))
                   println('added:', args.add)
                 })
-    } else if (_.size(args._) == 1) {
+    } else if (_.size(args._) === 1) {
       addColor(args.add, args._[0])
       println('added:', args.add)
     } else {
       errorExit('add what color?')
     }
-  }
-  else if (args.pick) {
+  } else if (args.pick) {
     colorpick({ targetApp: 'iTerm2'},
               function (res) {
                 println('picked:', rgbstr(res.rgb))
@@ -137,7 +145,7 @@ function process_args () {
     if (!_.isString(args.del)) {
       errorExit('must give name to delete')
     }
-    delColor(args.del);
+    delColor(args.del)
     println('deleted:', args.del)
   }
 
@@ -154,7 +162,6 @@ function process_args () {
   }
 }
 
-
 /**
  * Add a color to the local definitions
  */
@@ -162,7 +169,6 @@ function addColor (name, spec) {
   config.colors[name] = spec
   writeJSON(configpath, config)
 }
-
 
 /**
  * Remove a color from use. If it's a base color, need
@@ -180,7 +186,6 @@ function delColor (name) {
   writeJSON(configpath, config)
 }
 
-
 /**
  * List out the custom colors.
  */
@@ -189,21 +194,21 @@ function listColors () {
     println('no custom colors to list')
   } else {
     println()
-    var namel = maxLength(config.colors),
-        swatchl = 9,
-        nulled = []
-    println(padRight('Name', namel+1),
-            padRight('Swatch', swatchl+1),
+    var namel = maxLength(config.colors)
+    var swatchl = 9
+    var nulled = []
+    println(padRight('Name', namel + 1),
+            padRight('Swatch', swatchl + 1),
             'Definition')
-    _.each(config.colors, function(value, key){
+    _.each(config.colors, function (value, key) {
       if (!value) {
         nulled.push(key)
       } else {
-        var rgb = decodeColorSpec(value),
-            swatch = swatchString(rgb, swatchl);
-        println(padRight(key, namel+1), swatch + ' ', value)
+        var rgb = decodeColorSpec(value)
+        var swatch = swatchString(rgb, swatchl)
+        println(padRight(key, namel + 1), swatch + ' ', value)
       }
-    });
+    })
     if (nulled.length) {
       println()
       var nullplus = nulled.map(n => {
@@ -293,14 +298,14 @@ function decodeColor (name) {
   }
 
   // random named color
-  if (name == 'random') {
+  if (name === 'random') {
     var randColor = _.sample(colorNames)
     println('random color:', randColor)
     return colors[randColor]
   }
 
   // RANDOM color - not just a random named color
-  if (name == 'RANDOM') {
+  if (name === 'RANDOM') {
     var rcolor = [_.random(255), _.random(255), _.random(255) ]
     println('RANDOM color:', rgbstr(rcolor))
     return rcolor
@@ -318,11 +323,10 @@ function decodeColor (name) {
     var possibles = colorNames.filter(s => {
       return s.indexOf(name) >= 0
     })
-    if (possibles.length == 1) {
+    if (possibles.length === 1) {
       println('guessing:', possibles[0])
       return colors[possibles[0]]
-    }
-    else if (possibles.length > 1) {
+    }  else if (possibles.length > 1) {
       println(wrap('possibly: ' + possibles.join(', ')))
       var rcolor = _.sample(possibles)
       println('randomly picked:', rcolor)
@@ -353,8 +357,8 @@ function rgbstr (rgbarray) {
 function setTabColor (color) {
   var cmd = ansiseq('6;1;bg;red;brightness;',   color[0]) +
             ansiseq('6;1;bg;green;brightness;', color[1]) +
-            ansiseq('6;1;bg;blue;brightness;',  color[2]);
-  print(cmd);
+            ansiseq('6;1;bg;blue;brightness;',  color[2])
+  print(cmd)
 }
 
 /**
@@ -375,8 +379,8 @@ function setTabTitle (title, mode) {
  * @param {string} msg
  */
 function setBadge (msg) {
-  var msg64 = new Buffer(msg.toString()).toString('base64'),
-      cmd = ansiseq('1337;SetBadgeFormat=', msg64)
+  var msg64 = new Buffer(msg.toString()).toString('base64')
+  var cmd = ansiseq('1337;SetBadgeFormat=', msg64)
   print(cmd)
 }
 
@@ -400,26 +404,25 @@ function ansiseq2 () {
   return parts.join('')
 }
 
-
-function interpretConfig(config) {
+function interpretConfig (config) {
   _.each(config.colors, function (spec, key) {
-      if (key == 'default')
-        defaultColorSpec = spec  // might be name or value
-      updateColorMap(key, spec)
-    })
+    if (key === 'default') {
+      defaultColorSpec = spec  // might be name or value
+    }
+    updateColorMap(key, spec)
+  })
 }
 
 /**
  * Write a suitable default configuration file
  */
-function initConfigFile() {
-
+function initConfigFile () {
   if (fs.existsSync(configpath)) {
     errorExit('config file already exists')
   }
 
   var sample = {
-      'colors': {
+    'colors': {
       'alisongreen': 'rgb(125,199,53)',
       'js': 'orchid',
       'html': 'gold',
@@ -444,3 +447,28 @@ function updateColorMap (key, value) {
     allcolors[key] = rgb
   }
 }
+
+/*  standard flagged 22 issues on 7/7/2016, 2:04:16 PM
+  tabset.js:4:16: Multiple spaces found before '='.
+  tabset.js:5:16: Multiple spaces found before '='.
+  tabset.js:6:16: Multiple spaces found before '='.
+  tabset.js:7:16: Multiple spaces found before '='.
+  tabset.js:8:16: Multiple spaces found before '='.
+  tabset.js:9:16: Multiple spaces found before '='.
+  tabset.js:11:16: Multiple spaces found before '='.
+  tabset.js:12:16: Multiple spaces found before '='.
+  tabset.js:13:16: Multiple spaces found before '='.
+  tabset.js:14:16: Multiple spaces found before '='.
+  tabset.js:27:35: Multiple spaces found before 'b'.
+  tabset.js:45:10: Identifier 'process_args' is not in camel case.
+  tabset.js:92:11: 'colorNames' is already defined
+  tabset.js:124:17: Expected consistent spacing
+  tabset.js:136:15: Expected consistent spacing
+  tabset.js:210:7: Extra semicolon.
+  tabset.js:308:18: Expected consistent spacing
+  tabset.js:328:8: Multiple spaces found before 'else'.
+  tabset.js:330:11: 'rcolor' is already defined
+  tabset.js:348:10: Expected consistent spacing
+  tabset.js:357:49: Multiple spaces found before 'color'.
+  tabset.js:359:49: Multiple spaces found before 'color'.
+*/
