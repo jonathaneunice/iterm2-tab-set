@@ -1,5 +1,7 @@
-var assert = require('chai').assert,
-    _      = require('underscore');
+var assert = require('chai').assert
+var _      = require('underscore')
+var path   = require('path')
+var fs     = require('fs')
 
 var util = require('../util');
 util.globalize(util);
@@ -68,7 +70,7 @@ describe('util', function() {
     it('should work on empty objects', function () {
       assert.equal(maxLength({}), 0);
     });
-  }),
+  })
 
   describe('longest', function () {
     var list = 'and then there was a gigantic event'.split(' '),
@@ -86,26 +88,49 @@ describe('util', function() {
     it('should work on empty objects', function () {
       assert.equal(longest({}), null);
     })
-  }),
+  })
 
   describe('print', function () {
     it('should be tested');
-  }),
+  })
   describe('println', function () {
     it('should be tested');
-  }),
+  })
   describe('error', function () {
     it('should be tested');
-  }),
+  })
   describe('errorExit', function () {
     it('should be tested');
-  }),
+  })
+
   describe('readJSON', function () {
-    it('should be tested');
-  }),
+    it('should read JSON contents', function () {
+      const d = { a: 1, b: 'two', c: [22, 33] }
+      const ds = '{\n  "a": 1,\n  "b": "two",\n  "c": [\n    22,\n    33\n  ]\n}';
+      const tdir = fs.mkdtempSync('/tmp/test-');
+      const tpath = path.join(tdir, 'in.json')
+      fs.writeFileSync(tpath, ds);
+      var read_data = readJSON(tpath);
+      assert.deepEqual(read_data, d);
+      fs.unlinkSync(tpath);
+      fs.rmdirSync(tdir);
+    })
+  })
+
   describe('writeJSON', function () {
-    it('should be tested');
-  });
+    it('should write JSON contents', function () {
+      const d = { a: 1, b: 'two', c: [22, 33] }
+      const tdir = fs.mkdtempSync('/tmp/test-');
+      const tpath = path.join(tdir, 'out.json')
+      writeJSON(tpath, d);
+      contents = fs.readFileSync(tpath);
+      assert.equal(contents,
+        '{\n  "a": 1,\n  "b": "two",\n  "c": [\n    22,\n    33\n  ]\n}');
+      fs.unlinkSync(tpath);
+      fs.rmdirSync(tdir);
+    });
+  })
+
 });
 
 // TODO: more of the util module
