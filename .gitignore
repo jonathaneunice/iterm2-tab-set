@@ -2,3 +2,4 @@
 node_modules
 .hg
 .hgignore
+coverage

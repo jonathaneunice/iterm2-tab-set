@@ -19,8 +19,6 @@ function globalize(e, just) {
   });
 }
 
-
-
 /**
  * If `value` is `undefined`, return `defaultValue`.
  * Else return `value`. Helps set defaults, and shortens
@@ -33,7 +31,6 @@ function definedOr(value, defaultValue) {
       ? defaultValue
       : value
 }
-
 
 /**
  * Return the maximum length of a collection of strings.
@@ -49,7 +46,6 @@ function maxLength(o) {
   // equivalent to `longest(o).length`
 }
 
-
 /**
  * Return the longest string in the given object. Like
  * maxLength(), but returns the actual string.
@@ -59,7 +55,6 @@ function longest(o) {
   if (!_.size(strings)) return null;
   return _.max(strings, s => s.length);
 }
-
 
 /**
  * Pad a string on the right to reach the desired
@@ -77,7 +72,6 @@ function padRight(str, width, padding) {
     : str + Array(width-len+1).join(padding||" ")
 }
 
-
 /**
  * Print arguments to stdout. Like Python's print, separates
  * arguments with spaces. No trailing newline.
@@ -87,36 +81,31 @@ function print() {
   process.stdout.write(msg);
 }
 
-
 /**
  * Print arguments to stdout. Like Python, separates arguments
  * with spaces. Adds trailing newline.
  */
 function println() {
-  var msg = _.toArray(arguments).concat("\n").join(' ');
+  var msg = _.toArray(arguments).join(' ') + '\n';
   process.stdout.write(msg);
 }
-
 
 /**
  * Println to stderr.
  */
 function error() {
-  var msg = _.toArray(arguments).concat("\n").join(' ');
+  var msg = _.toArray(arguments).join(' ') + '\n';
   process.stderr.write(msg);
 }
-
 
 /**
  * Println to stderr, then quit.
  */
 function errorExit() {
-  var msg = _.toArray(arguments).concat("\n").join(' ');
+  var msg = _.toArray(arguments).join(' ') + '\n';
   process.stderr.write(msg);
   process.exit(1);
 }
-
-
 
 /**
  * Read a JSON file. Return the result. Returns
@@ -133,7 +122,6 @@ function readJSON(filepath) {
   }
 }
 
-
 /**
  * Write data to a JSON file. Writes pretty JSON for
  * human readability over absolute most compactness.
@@ -147,7 +135,6 @@ function writeJSON(filepath, data) {
     errorExit("Detailed error:", e);
   }
 }
-
 
 exports = module.exports = {
   globalize,

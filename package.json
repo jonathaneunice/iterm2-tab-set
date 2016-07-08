@@ -1,10 +1,11 @@
 {
   "name": "iterm2-tab-set",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Set iTerm2 tab color, title, and/or badge",
   "main": "tabset.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "cover": "istanbul cover _mocha -- -R spec && open coverage/lcov-report/iterm2-tab-set/index.html"
   },
   "bin": {
     "tabset": "./tabset.js"
@@ -47,6 +48,8 @@
     "babel-cli": "^6.10.1",
     "babel-preset-es2015": "^6.9.0",
     "chai": "^3.5.0",
-    "mocha": "^2.5.3"
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3",
+    "test-console": "^1.0.0"
   }
 }

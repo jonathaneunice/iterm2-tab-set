@@ -1,8 +1,10 @@
 var assert = require('chai').assert
 var _      = require('underscore')
 var path   = require('path')
-var fs     = require('fs')
-
+var process = require('process')
+var fs     = require('fs');
+var stdout = require("test-console").stdout;
+var stderr = require("test-console").stderr;
 var util = require('../util');
 util.globalize(util);
 
@@ -91,16 +93,48 @@ describe('util', function() {
   })
 
   describe('print', function () {
-    it('should be tested');
+    it('should print output sans newline', function () {
+      var stdo = stdout.inspect();
+      print(1, 'this', 'that');
+      stdo.restore();
+      assert.equal(stdo.output[0], '1 this that');
+    });
   })
+
   describe('println', function () {
-    it('should be tested');
+    it('should print output plus newline', function () {
+      var stdo = stdout.inspect();
+      println(1, 'this', 'that');
+      stdo.restore();
+      assert.equal(stdo.output[0], '1 this that\n');
+    });
   })
+
   describe('error', function () {
-    it('should be tested');
+    it('should print output plus newline to stderr', function () {
+      var stde = stderr.inspect();
+      error(1, 'this', 'that');
+      stde.restore();
+      assert.equal(stde.output[0], '1 this that\n');
+    });
   })
+
   describe('errorExit', function () {
-    it('should be tested');
+    it('should print output plus newline to stderr, then exit', function (done) {
+      var oldExit = process.exit;
+      var stde = stderr.inspect();
+
+      // intercept process.exit call
+      process.exit = function (num) {
+        assert.equal(num, 1);
+        stde.restore();
+        assert.equal(stde.output[0], '1 this that\n');
+        process.exit = oldExit;
+        done();
+      }
+
+      errorExit(1, 'this', 'that');
+    });
   })
 
   describe('readJSON', function () {
