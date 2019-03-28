@@ -2,13 +2,11 @@ Tabset
 ------
 
 Have a lot of iTerm2 windows open? They all look nearly indistinguishable?
-And when you go to the `Window` menu to select one, figuring out
-which one is impeded because they're all titled "Shell"?  `tabset`
-can help.
+When you go to the `Window` menu to select one, they're confusingly
+all entitled "Shell"?  `tabset` can help.
 
-`tabset` is designed to make life easier for those using iTerm2 on
-the Mac. It provides a CLI command that allows easy setting of
-iTerm2 tab/window titles, badges, and colors. If you have a lot of
+`tabset` makes life easier for iTerm2 users, enabling easy setting
+of tab and window titles, badges, and colors. If you have a lot of
 tabs/windows in operation simultaneously, `tabset` helps to visually
 distinguish them.
 
@@ -32,7 +30,7 @@ The easiest usage is just to run the command:
 
 This will colorize the tab header, set the tab
 title, and set the tab badge based on the current
-working directory.  If all you want are tabs to
+working directory. If all you want are tabs to
 look a little different from each other, you're done.
 
 For a little more precision, you can give a "tag" to

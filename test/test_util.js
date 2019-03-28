@@ -1,11 +1,11 @@
-var assert = require('chai').assert
-var _      = require('underscore')
-var path   = require('path')
-var process = require('process')
-var fs     = require('fs');
-var stdout = require("test-console").stdout;
-var stderr = require("test-console").stderr;
-var util = require('../util');
+const assert = require('chai').assert
+const _      = require('underscore')
+const path   = require('path')
+const process = require('process')
+const fs     = require('fs');
+const stdout = require("test-console").stdout;
+const stderr = require("test-console").stderr;
+const util = require('../util');
 util.globalize(util);
 
 describe('util', function() {
@@ -16,8 +16,8 @@ describe('util', function() {
       assert.isFunction(padRight);
       assert.isFunction(maxLength);
       assert.isFunction(longest);
-    });
-  }),
+    })
+  })
 
   describe('definedOr', function () {
     it('should return first value, if defined, else default', function () {
@@ -137,6 +137,40 @@ describe('util', function() {
     });
   })
 
+  describe('jsonify', function () {
+    it('should stringify JSON contents', function () {
+      const d = { a: 1, b: 'two', c: [22, 33] }
+      assert.equal(jsonify(d), JSON.stringify(d));
+    })
+    it('should stringify JSON contents with indent', function () {
+      const d = { a: 1, b: 'two', c: [22, 33] }
+      assert.equal(jsonify(d, '  '), JSON.stringify(d, null, '  '));
+    })
+  })
+
+  describe('resolveSymbolic', function () {
+    it('should resolve ~ as $HOME', function () {
+      var given = '~/something';
+      var answer = path.join(process.env.HOME, 'something');
+      assert.equal(resolveSymbolic(given), answer);
+    });
+    it('should resolve .. as one dir up', function () {
+      var given = '../something';
+      var answer = path.join(path.dirname(process.cwd()), 'something');
+      assert.equal(resolveSymbolic(given), answer);
+    });
+    it('should resolve . as current dir', function () {
+      var given = './something';
+      var answer = path.join(process.cwd(), 'something');
+      assert.equal(resolveSymbolic(given), answer);
+    });
+    it('should just return unsymbolic paths', function () {
+      var given = '/something';
+      var answer = '/something';
+      assert.equal(resolveSymbolic(given), answer);
+    });
+  });
+
   describe('readJSON', function () {
     it('should read JSON contents', function () {
       const d = { a: 1, b: 'two', c: [22, 33] }
@@ -148,7 +182,11 @@ describe('util', function() {
       assert.deepEqual(read_data, d);
       fs.unlinkSync(tpath);
       fs.rmdirSync(tdir);
-    })
+    });
+    it('should return null if no such file exists', function () {
+      var nonesuch = readJSON('/slkdjfwejfwiejfowj');
+      assert.isNull(nonesuch);
+    });
   })
 
   describe('writeJSON', function () {

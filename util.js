@@ -1,7 +1,9 @@
+'use strict'
 
-var _       = require('underscore')
-var fs      = require('fs')
-var process = require('process')
+const _       = require('underscore')
+const fs      = require('fs')
+const process = require('process')
+const path    = require('path')
 
 /**
  * Given an export object ("module") `e`,
@@ -111,6 +113,27 @@ function println () {
 }
 
 /**
+ * Debug version of println. Prints only when display value set
+ * to something truthy, so by default, is a no-op. (However, it's
+ * a function not a macro, so any side-effects or performance hit
+ * to constructing its arguments will still be in effect.)
+ */
+function dprintln () {
+  if (!dprintln.display) return
+  var msg = _.toArray(arguments).join(' ') + '\n'
+  process.stdout.write(msg)
+}
+
+/**
+ * Return the JSON.stringify version of a value. Primary virtue
+ * is a shorter (half-length) name for use in print function calls.
+ * Does not do fancy indentation.
+ */
+function jsonify (value, indent=null) {
+  return JSON.stringify(value, null, indent)
+}
+
+/**
  * Println to stderr.
  */
 function error () {
@@ -157,6 +180,24 @@ function writeJSON (filepath, data) {
   }
 }
 
+
+/**
+ * Given a symbolic dir name starting with
+ * `.`, `..`, or `~`, resolve the symbolism,
+ * returning an absolute version of the dir.
+ */
+function resolveSymbolic(filepath) {
+  if (filepath[0] === '~') {
+    return path.join(process.env.HOME, filepath.slice(1));
+  } else if (filepath.slice(0, 2) == '..') {
+    var dir = path.resolve(process.cwd(), '..');
+    return path.join(dir, filepath.slice(2));
+  } else if (filepath[0] == '.') {
+    return path.join(process.cwd(), filepath.slice(1));
+  }
+  return filepath;
+}
+
 exports = module.exports = {
   globalize,
   definedOr,
@@ -165,8 +206,11 @@ exports = module.exports = {
   longest,
   print,
   println,
+  dprintln,
+  jsonify,
   error,
   errorExit,
   readJSON,
-  writeJSON
+  writeJSON,
+  resolveSymbolic
 }
