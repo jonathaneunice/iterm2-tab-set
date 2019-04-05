@@ -437,7 +437,7 @@ function setTabTitle (title, mode) {
  */
 function setBadge (msg) {
   msg += '\u00a0' // give some right spacing
-  var msg64 = new Buffer(msg.toString()).toString('base64')
+  var msg64 = Buffer.from(msg.toString()).toString('base64')
   var cmd = ansiseq('1337;SetBadgeFormat=', msg64)
   print(cmd)
 }
